@@ -1,124 +1,147 @@
 <x-app-layout>
-    <!-- Hero header with dark green theme -->
-    <div class="bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-700">
-        <div class="max-w-7xl mx-auto px-6 py-8 text-emerald-50">
-            <div class="flex items-center gap-4">
-                <img src="{{ asset('images/Logo_Pusat_Peralatan_Angkatan_Darat.png') }}" alt="Bengpuspal" class="w-10 h-10 opacity-90 object-contain">
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight">Sistem Piket Bengpuspal</h1>
-                    <p class="text-emerald-200 text-sm">Piket jaga malam terjadwal dan otomatis</p>
+    <!-- Header -->
+    <div class="bg-gradient-to-br from-emerald-900 to-emerald-800">
+        <div class="max-w-7xl mx-auto px-6 py-6 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <img src="{{ asset('images/Logo_Pusat_Peralatan_Angkatan_Darat.png') }}" alt="Bengpuspal" class="w-12 h-12 object-contain">
+                    <div>
+                        <h1 class="text-2xl font-bold font-sans">Sistem Piket Bengpuspal</h1>
+                        <p class="text-emerald-200 text-sm">Piket jaga malam terjadwal dan otomatis</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-4">
+                    <span class="text-emerald-100">{{ auth()->user()->name }}</span>
+                    <div class="w-10 h-10 rounded-full bg-emerald-700 flex items-center justify-center">
+                        <span class="text-white font-medium">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Content cards -->
-    <div class="mt-6 pb-12">
+    <!-- Main Content -->
+    <div class="py-8 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="bg-white/95 shadow-xl ring-1 ring-emerald-100 sm:rounded-xl">
-                <div class="p-6 sm:p-8">
-                    <div class="text-lg text-emerald-900">Halo, <span class="font-semibold">{{ auth()->user()->name }}</span></div>
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Halo, {{ auth()->user()->name }}</h2>
+                <p class="text-gray-600">Selamat datang di Sistem Piket Bengpuspal</p>
+            </div>
 
-                    <div class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="p-4 rounded-lg border border-emerald-200 bg-emerald-50">
-                            <div class="text-xs uppercase tracking-wide text-emerald-700">Tanggal Jaga</div>
-                            <div class="mt-1 text-xl font-semibold text-emerald-900">{{ isset($jadwalHariIni) ? \Illuminate\Support\Carbon::parse($jadwalHariIni->tanggal_jaga)->format('d M Y') : '-' }}</div>
-                        </div>
-                        <div class="p-4 rounded-lg border border-emerald-200 bg-emerald-50">
-                            <div class="text-xs uppercase tracking-wide text-emerald-700">Petugas</div>
-                            <div class="mt-1 text-xl font-semibold text-emerald-900">{{ $jadwalHariIni->petugas->nama ?? '-' }}</div>
-                        </div>
-                        <div class="p-4 rounded-lg border border-emerald-200 bg-emerald-50">
-                            <div class="text-xs uppercase tracking-wide text-emerald-700">Status</div>
-                            <div class="mt-1">
-                                @php $isOn = ($status === 'Sedang Bertugas'); @endphp
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-medium {{ $isOn ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700' }}">
-                                    <span class="h-2 w-2 rounded-full {{ $isOn ? 'bg-emerald-200' : 'bg-slate-500' }}"></span>
-                                    {{ $status }}
-                                </span>
-                            </div>
+            <!-- Info Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Tanggal Jaga -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <div class="text-sm font-medium text-gray-500 mb-1">TANGGAL JAGA</div>
+                        <div class="text-2xl font-bold text-gray-900">{{ isset($jadwalHariIni) ? \Illuminate\Support\Carbon::parse($jadwalHariIni->tanggal_jaga)->format('d M Y') : '-' }}</div>
+                    </div>
+                </div>
+                
+                <!-- Petugas -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <div class="text-sm font-medium text-gray-500 mb-1">PETUGAS</div>
+                        <div class="text-2xl font-bold text-gray-900">{{ $jadwalHariIni->petugas->nama ?? '-' }}</div>
+                    </div>
+                </div>
+                
+                <!-- Status -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <div class="text-sm font-medium text-gray-500 mb-1">STATUS</div>
+                        @php $isOn = ($status === 'Sedang Bertugas'); @endphp
+                        <div class="mt-1">
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium {{ $isOn ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-800' }}">
+                                <span class="h-2.5 w-2.5 rounded-full {{ $isOn ? 'bg-emerald-500' : 'bg-gray-500' }} mr-2"></span>
+                                {{ $status }}
+                            </span>
                         </div>
                     </div>
-
-                    @if (auth()->user() && auth()->user()->role === 'admin')
-                        @php
-                            $totalPetugas = \App\Models\Petugas::count();
-                            $pendingLaporan = \App\Models\LaporanPiket::where('status', 'pending')->count();
-                        @endphp
-
-                        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="p-4 rounded-lg border border-emerald-200 bg-emerald-50">
-                                <div class="text-xs uppercase tracking-wide text-emerald-700">Ringkasan Admin</div>
-                                <dl class="mt-3 space-y-1 text-sm text-emerald-900">
-                                    <div class="flex items-center justify-between">
-                                        <dt>Jumlah Petugas</dt>
-                                        <dd class="font-semibold">{{ $totalPetugas }}</dd>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <dt>Laporan Menunggu Approval</dt>
-                                        <dd class="font-semibold">{{ $pendingLaporan }}</dd>
-                                    </div>
-                                </dl>
-                            </div>
-
-                            <div class="p-4 rounded-lg border border-emerald-200 bg-emerald-50 flex flex-col gap-2">
-                                <div class="text-xs uppercase tracking-wide text-emerald-700">Aksi Cepat Admin</div>
-                                <div class="mt-2 flex flex-wrap gap-2">
-                                    <a href="{{ route('laporan-piket.approval') }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-emerald-700 text-white text-sm hover:bg-emerald-800">Kelola Approval Laporan</a>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-
-                    @if (auth()->user() && auth()->user()->role === 'petugas')
-                    <div class="mt-6">
-                        <a href="{{ route('jadwal-jaga.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-700 text-white hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M3 6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v10.5A2.25 2.25 0 0118.75 19.5H5.25A2.25 2.25 0 013 17.25V6.75zM7.5 8.25A.75.75 0 006.75 9v.75c0 .414.336.75.75.75h.75a.75.75 0 00.75-.75V9a.75.75 0 00-.75-.75H7.5zM6.75 12a.75.75 0 01.75-.75h.75a.75.75 0 01.75.75v.75a.75.75 0 01-.75.75H7.5a.75.75 0 01-.75-.75V12zm3.75-3.75a.75.75 0 01.75-.75h5.25a.75.75 0 01.75.75V9a.75.75 0 01-.75.75H11.25A.75.75 0 0110.5 9V8.25zM11.25 12a.75.75 0 01.75-.75h5.25a.75.75 0 01.75.75v.75a.75.75 0 01-.75.75H12a.75.75 0 01-.75-.75V12z"/></svg>
-                            Lihat Jadwal Piket
-                        </a>
-                    </div>
-
-                    <!-- Daftar Petugas (hanya petugas) -->
-                    <div class="mt-10">
-                        <div class="flex items-center justify-between">
-                            <h2 class="text-lg font-semibold text-emerald-900">Daftar Petugas</h2>
-                        </div>
-                        <div class="mt-3 overflow-x-auto border border-emerald-200 rounded-lg">
-                            <table class="min-w-full divide-y divide-emerald-200">
-                                <thead class="bg-emerald-50">
-                                    <tr class="text-left text-sm text-emerald-700">
-                                        <th class="px-3 py-2">#</th>
-                                        <th class="px-3 py-2">Nama</th>
-                                        <th class="px-3 py-2">Pangkat</th>
-                                        <th class="px-3 py-2">Jabatan</th>
-                                        <th class="px-3 py-2">No. Telepon</th>
-                                        <th class="px-3 py-2">Urutan</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-emerald-100 bg-white">
-                                    @forelse($daftarPetugas as $i => $p)
-                                        <tr class="text-sm text-emerald-900">
-                                            <td class="px-3 py-2">{{ $i+1 }}</td>
-                                            <td class="px-3 py-2 font-medium">{{ $p->nama }}</td>
-                                            <td class="px-3 py-2">{{ $p->pangkat }}</td>
-                                            <td class="px-3 py-2">{{ $p->jabatan }}</td>
-                                            <td class="px-3 py-2">{{ $p->nomor_telepon }}</td>
-                                            <td class="px-3 py-2">{{ $p->urutan }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="px-3 py-4 text-center text-sm text-emerald-700">Belum ada petugas.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    @endif
-
                 </div>
             </div>
+
+            <!-- Tombol Aksi -->
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Daftar Petugas</h3>
+                <a href="{{ route('jadwal-jaga.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                    </svg>
+                    Lihat Jadwal Piket
+                </a>
+            </div>
+
+            <!-- Tabel Petugas -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NAMA</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PANGKAT</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">JABATAN</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NO. TELEPON</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URUTAN</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @php
+                                $petugas = [
+                                    ['nama' => 'candra', 'pangkat' => 'Bintara', 'jabatan' => 'Kepala Staf Angkatan Darat (KSAD)', 'no_telp' => '08976546', 'urutan' => 1],
+                                    ['nama' => 'pasha', 'pangkat' => 'Bintara', 'jabatan' => 'Sersan Mayor', 'no_telp' => '0976567', 'urutan' => 2],
+                                    ['nama' => 'habibi', 'pangkat' => 'TNI', 'jabatan' => 'Bintara', 'no_telp' => '0898765467', 'urutan' => 3],
+                                    ['nama' => 'Azri Affan M', 'pangkat' => 'PERWIRA', 'jabatan' => 'PNS', 'no_telp' => '6789654675', 'urutan' => 4],
+                                    ['nama' => 'JOKO spd mpd', 'pangkat' => 'Bengkel', 'jabatan' => 'Tamtama', 'no_telp' => '685436', 'urutan' => 5],
+                                    ['nama' => 'DWI TJAHLJO DUMAD', 'pangkat' => 'bintang', 'jabatan' => 'PNS', 'no_telp' => '5647865', 'urutan' => 6],
+                                ];
+                            @endphp
+                            
+                            @foreach($petugas as $index => $p)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $index + 1 }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $p['nama'] }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p['pangkat'] }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-500">{{ $p['jabatan'] }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p['no_telp'] }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p['urutan'] }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Hanya tampilkan untuk admin -->
+            @if(auth()->user() && auth()->user()->role === 'admin')
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Kartu Ringkasan Admin -->
+                    <div class="p-4 rounded-lg border border-lime-900/30 bg-lime-50">
+                        <div class="text-xs uppercase tracking-widest text-lime-900 font-semibold">Ringkasan Admin</div>
+                        <dl class="mt-3 space-y-2 text-sm text-lime-950">
+                            <div class="flex items-center justify-between border-b border-lime-100 pb-1">
+                                <dt>Jumlah Petugas</dt>
+                                <dd class="font-bold text-lg">{{ $totalPetugas ?? 0 }}</dd>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <dt>Laporan Menunggu Approval</dt>
+                                <dd class="font-bold text-lg text-red-700">{{ $pendingLaporan ?? 0 }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <!-- Kartu Aksi Cepat Admin -->
+                    <div class="p-4 rounded-lg border border-lime-900/30 bg-lime-50 flex flex-col gap-2">
+                        <div class="text-xs uppercase tracking-widest text-lime-900 font-semibold">Aksi Cepat Admin</div>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            <a href="{{ route('laporan-piket.approval') }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-lime-900 text-white text-sm font-semibold hover:bg-lime-800 transition duration-150 ease-in-out shadow-md">
+                                Kelola Approval Laporan ({{ $pendingLaporan ?? 0 }})
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </x-app-layout>
-
